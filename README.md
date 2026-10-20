@@ -240,20 +240,7 @@ You can also record a short GIF of a complete decision cycle, provided you label
 - [ ] Design and ethically review a human-participant evaluation protocol.
 - [ ] Publish real application screenshots and a short demonstration video.
 
-## 🧰 Technology stack
 
-**Python** · **Streamlit** · **Plotly** · **NumPy** · **Pandas**
 
-## 📚 Intended use and attribution
-
-MHATS is an **independent educational portfolio and research prototype**, inspired by questions in human-centered maritime autonomy. It is **not an official NTNU project** and is not endorsed by any maritime authority. No license is currently granted by this README; add a `LICENSE` file if you choose to permit reuse.
-
----
-
-<div align="center">
-
-**MHATS — Keeping the human in the loop.**
-
-*Prototype for studying interfaces, transparency and operator decisions in synthetic maritime encounters.*
 
 </div>
