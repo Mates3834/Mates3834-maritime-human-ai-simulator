@@ -1,163 +1,259 @@
-# Maritime Human–AI Teaming Lab
+<div align="center">
 
-**Interactive research prototype for explainable AI-assisted maritime traffic decisions.**
+# ⚓ MHATS
+### Maritime Human–AI Teaming Simulator
 
-A Streamlit dashboard exploring how a human operator can review, accept, reject, or modify a geometric AI-style course suggestion during synthetic vessel encounters. Developed as a portfolio demonstration related to human–AI collaboration in maritime operations.
+**An interactive, human-in-the-loop maritime decision-support research prototype**
 
-> **Research/education only — NOT FOR NAVIGATION.** This is not a certified collision-avoidance system, does not implement validated COLREG compliance, and must not be used to make real vessel maneuvering decisions.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Plotly](https://img.shields.io/badge/Plotly-Interactive_Radar-3F4F75?logo=plotly&logoColor=white)](https://plotly.com/python/)
+![Status](https://img.shields.io/badge/Status-Research_Prototype-6B7280)
+![Use](https://img.shields.io/badge/Use-Education_Only-B45309)
 
-## Overview
+*Visualize vessel encounters · Examine explainable recommendations · Record operator decisions*
 
-The prototype combines a radar-style Plotly display with simple relative-motion calculations and a human-in-the-loop decision workflow. It illustrates *interaction design* rather than a trained machine-learning model. The recommendation is a deterministic, geometry-based candidate-heading search, **not** a learned AI policy.
+![MHATS illustrative radar preview](assets/radar_preview.png)
 
-## Features
+<sub>Illustrative radar preview reconstructed from the simulation geometry—not a screenshot of the live Streamlit application.</sub>
 
-- **Three synthetic encounters:** crossing (starboard), head-on, and overtaking
-- **Radar-style display:** vessel symbols, heading, track history, projected tracks, closest-approach indicator, and candidate route
-- **Risk metrics:** distance at closest point of approach (DCPA/CPA) and time to CPA (TCPA)
-- **Three modes:** Human Only, AI Only, and Human + AI
-- **Operator interaction:** accept, reject, or modify a suggested maneuver
-- **Experiment log:** timestamp, scenario, mode, decision, course change, and pre-decision CPA/TCPA; CSV export
-- **Adjustable settings:** scenario, step length, and illustrative position uncertainty
+</div>
 
-## Radar preview
+> [!IMPORTANT]
+> **Research and education only — NOT FOR NAVIGATION.** MHATS is not a certified navigation or collision-avoidance product. It does **not** implement validated COLREG compliance. Never use its outputs to make real-world vessel maneuvers.
 
-![Illustrative radar preview](assets/radar_preview.png)
+---
 
-**Image provenance:** `assets/radar_preview.png` is an illustrative figure reconstructed from the demo's vessel geometry, **not a screenshot of the running Streamlit interface**. The live radar is generated dynamically with Plotly in `app.py`.
+## ✨ Why MHATS?
 
-To add an authentic dashboard screenshot:
+Maritime autonomy is not only about calculating a route. It also raises a human-factors question: **How should a maritime operator interact with an automated recommendation, understand its reasoning, and retain meaningful control?**
 
-1. Run `streamlit run app.py` locally.
-2. Choose **Human + AI** and **Head-on** in the sidebar.
-3. Capture the radar, metrics and decision-support panel.
-4. Save the screenshot to `assets/dashboard.png` and add `![Live application screenshot](assets/dashboard.png)` here.
+MHATS demonstrates this interaction in a small, reproducible synthetic environment. An operator can inspect a radar-style traffic picture, review a geometric course recommendation, and accept, reject, or modify it. The simulator records decisions for later exploratory analysis.
 
-### How to read the radar
+**Scope:** The current “AI” module is a **deterministic, geometry-based decision-support heuristic**, not a trained machine-learning model. MHATS illustrates *human–AI interaction design*, not demonstrated AI performance or maritime safety.
 
-| Visual element | Meaning |
-| --- | --- |
-| Cyan vessel | Own ship and its current heading |
-| Orange vessel | Synthetic target vessel |
-| Cyan dashed line | Own ship's constant-course projected path |
-| Orange dashed line | Target's constant-course projected path |
-| Green line | Geometry-based proposed heading, visible in AI modes |
-| Red CPA marker/segment | Projected closest-approach location or separation |
-| Concentric rings | Relative distance around own ship, in nautical miles |
+## 🧭 Contents
 
-The radar uses **local East/North coordinates in nautical miles**, not georeferenced nautical charts or live AIS. The ship shapes are symbolic and not to scale. Zoom/pan is supported in the live Plotly view.
+- [What you can explore](#-what-you-can-explore)
+- [Radar guide](#-radar-guide)
+- [Quick start](#-quick-start)
+- [Try a complete scenario](#-try-a-complete-scenario)
+- [How the prototype works](#-how-the-prototype-works)
+- [Human–AI research ideas](#-humanai-research-ideas)
+- [Project structure](#-project-structure)
+- [Limitations and roadmap](#-limitations-and-roadmap)
 
-### Dashboard panels and controls
+## 🚢 What you can explore
 
-- **Current DCPA** — predicted minimum separation assuming constant current velocities.
-- **TCPA** — time until that predicted closest approach; nonnegative and displayed in minutes.
-- **Risk flag** — `HIGH` when DCPA is below `0.5 NM` **and** TCPA is below `30 min`, otherwise `LOW`. These are demo thresholds, not safety standards.
-- **Own heading** — current simulated course clockwise from north.
-- **Mode selector** — `Human Only` hides the recommendation; `AI Only` offers a deterministic suggestion to apply; `Human + AI` lets an operator accept, reject or modify it.
-- **Scenario selector** — switches between crossing, head-on and overtaking initial conditions.
-- **Position uncertainty** — display-only illustrative slider; **does not affect** CPA or recommendations.
-- **Simulation step** — sets the amount of simulated time advanced per click.
-- **Decision buttons** — change heading instantly, log a decision, but **do not advance time**.
-- **Advance simulation** — moves vessels using constant speeds/headings for the selected step.
-- **Experiment log** — records decisions; download CSV for analysis.
+| Capability | What it demonstrates |
+|:--|:--|
+| **Interactive radar** | Symbolic vessels, course projections, track history, range rings and closest-approach geometry |
+| **Three encounter scenarios** | Synthetic crossing, head-on and overtaking situations |
+| **CPA / TCPA estimates** | Relative-motion metrics under constant-velocity assumptions |
+| **Explainable suggestion** | A candidate heading selected by a deterministic geometric search, with projected DCPA |
+| **Human Only mode** | Operator decides without seeing the suggestion |
+| **AI Only mode** | Operator can apply the automated candidate maneuver |
+| **Human + AI mode** | Operator explicitly accepts, rejects or modifies a suggestion |
+| **Decision logging** | Timestamp, scenario, mode, action, course change and pre-decision metrics; CSV download |
 
-### Suggested demonstration walkthrough
+## 📡 Radar guide
 
-1. Select **Head-on**, **Human + AI**.
-2. Inspect the risk metrics and green suggested course line.
-3. Choose **Accept AI** or set a manual alteration and choose **Modify**.
-4. Click **Advance simulation** several times to observe projected tracks change.
-5. Compare the same starting scenario in **Human Only** and **AI Only** after pressing **Reset scenario**.
-6. Download the experiment CSV and inspect the recorded choices.
+![Illustrative radar screen](assets/radar_preview.png)
 
-**Important limitations:** The recommendation is a simplified candidate-heading search, not a trained AI model or a verified COLREG implementation. The prototype does not model turning dynamics, environmental forces, multi-target traffic, probabilistic uncertainty, or actual human-subject performance. The demo log alone cannot substantiate claims that collaboration improves safety.
+| Color / symbol | Meaning |
+|:--|:--|
+| 🩵 **Cyan vessel** | Own ship and heading |
+| 🟠 **Orange vessel** | Synthetic target vessel |
+| **Cyan / orange dashed tracks** | Constant-course projections |
+| 🟢 **Green course line** | Proposed geometric maneuver in AI-enabled modes |
+| 🔴 **Red CPA indicator** | Predicted closest-approach geometry |
+| **Concentric rings** | Relative range in nautical miles (NM) |
 
-## Quick start
+The radar uses **local East–North coordinates (NM)**, not a real chart, AIS feed or geographical map. Ship icons are symbolic and not to scale. In the running application, Plotly supports zoom and pan.
 
-Requires Python 3.10+.
+### Reading the dashboard
+
+- **DCPA (NM):** estimated closest separation if current velocities remain constant.
+- **TCPA (min):** estimated time until that closest approach.
+- **Risk flag:** illustrative `HIGH` when DCPA < 0.5 NM **and** TCPA < 30 minutes; otherwise `LOW`. These are **demo thresholds**, not operational safety criteria.
+- **Proposed heading:** a candidate maneuver evaluated using projected separation, **not** a verified COLREG recommendation.
+- **Position uncertainty slider:** displayed for discussion only; it does **not** alter the risk calculation.
+- **Advance simulation:** moves the synthetic vessels forward by the selected time step.
+
+## 🚀 Quick start
+
+**Requirements:** Python 3.10 or newer; an internet connection may be needed to install dependencies.
+
+### 1. Get the code
+
+Download this repository as a ZIP and extract it, **or** clone it after uploading to your GitHub account:
 
 ```bash
-# Clone your repository (replace YOUR_USERNAME)
-git clone https://github.com/YOUR_USERNAME/maritime-human-ai-teaming-lab.git
-cd maritime-human-ai-teaming-lab
+git clone https://github.com/YOUR_USERNAME/maritime-human-ai-teaming-simulator.git
+cd maritime-human-ai-teaming-simulator
+```
 
-# Optional: create a virtual environment
+> Replace `YOUR_USERNAME` with your GitHub username. The URL above is a placeholder, not a live project link.
+
+### 2. Create an environment (recommended)
+
+**Windows PowerShell**
+
+```powershell
 python -m venv .venv
-# Windows PowerShell: .venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
+.venv\Scripts\Activate.ps1
+```
 
-pip install -r requirements.txt
+**macOS / Linux**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install and launch
+
+```bash
+python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Streamlit prints the local URL (normally `http://localhost:8501`).
+Streamlit usually opens at **http://localhost:8501**. If it does not open automatically, copy the local URL printed in the terminal into your browser.
 
-### Run without Git
+## 🎮 Try a complete scenario
 
-Download the repository ZIP, extract it, open a terminal in the folder containing `app.py`, and run the final two commands above.
+1. In the sidebar, select **Head-on** and **Human + AI**.
+2. Review the current **DCPA**, **TCPA**, risk flag and vessel positions.
+3. Read the proposed heading alteration and the geometric rationale.
+4. Click **Accept AI**, **Reject AI**, or choose a manual angle and click **Modify**.
+5. Click **Advance simulation** to move the vessels; repeat to observe the updated encounter.
+6. Open the **Experiment log** and export the CSV.
+7. Select **Reset scenario**, switch to **Human Only**, and try the same starting situation without advice.
 
-## Example workflow
+**Important behavior:** Decision buttons update the own-ship heading immediately but do not advance simulation time. The ship is modeled as changing heading instantaneously; there is no realistic turning-rate model.
 
-1. Choose an encounter scenario in the sidebar.
-2. Select **Human + AI** to display the recommended course change and projected DCPA.
-3. Inspect the visualized traffic and rationale.
-4. **Accept**, **Reject**, or **Modify** the proposal.
-5. Advance the simulation by one time step to observe the updated vessel positions.
-6. Export the decision log as CSV for later analysis.
-
-**Modes:** Human Only hides AI advice; AI Only provides an apply-AI-action button; Human + AI supports explicit human responses. This is a simplified interaction demonstration, not a controlled human-subject experiment.
-
-## Methods (simplified)
-
-Vessel velocities are represented in an east/north coordinate frame. For relative position **r** and relative velocity **v**, time to closest approach is estimated by
-
-\[
-t_{CPA}=\max\left(0,-\frac{\mathbf r\cdot\mathbf v}{\|\mathbf v\|^2}\right)
-\]
-
-and closest-approach distance by
-
-\[
-DCPA=\|\mathbf r+\mathbf v t_{CPA}\|.
-\]
-
-The program compares geometric candidate headings and displays a suggested alteration with a projected DCPA. These calculations assume constant target motion and simplified instantaneous own-ship course changes. **A higher predicted DCPA alone does not establish a safe or COLREG-compliant maneuver.**
-
-## Project structure
+## ⚙️ How the prototype works
 
 ```text
-maritime-human-ai-teaming-lab/
-├── app.py              # Streamlit UI, kinematics, radar and decisions
-├── requirements.txt    # Python dependencies
-├── README.md           # Project description and usage
-├── .gitignore          # Local files excluded from version control
-└── assets/             # Add verified screenshots here
+Synthetic encounter (own ship + one target)
+                   |
+                   v
+          Relative-motion model
+                   |
+                   v
+          CPA / TCPA estimation
+                   |
+                   v
+      Candidate-heading evaluation
+                   |
+                   v
+        Explanation + radar view
+                   |
+          +--------+--------+
+          |        |        |
+        Accept   Reject   Modify
+          |        |        |
+          +--------+--------+
+                   |
+                   v
+       Update heading + log choice
+                   |
+                   v
+          Advance simulation
 ```
 
-## Known limitations
+### Closest point of approach
 
-- One target vessel and synthetic scenarios only
-- Point-mass kinematics; no validated maneuvering dynamics or actuator limits
-- No validated COLREG interpretation, route feasibility, or maritime safety assurance
-- No real AIS, radar, weather, or sea-state data
-- Position-uncertainty slider is displayed but **not** propagated into risk estimates
-- Rule/geometry-based recommendation; no trained AI model
-- No empirical evidence of improved safety, workload, trust, or decision quality
-- Operator logs are for demonstration; no human-subject study has been conducted
+Let **r** be target position relative to own ship and **v** the target velocity relative to own ship. For nonzero relative speed, the time to closest point of approach is
 
-## Research roadmap
+$$
+t_{CPA}=\max\left(0,-\frac{\mathbf r\cdot\mathbf v}{\mathbf v\cdot\mathbf v}\right)
+$$
 
-- [ ] Add reproducible encounter scenario files and automated unit tests
-- [ ] Introduce explicit COLREG reasoning with rule-specific test cases
-- [ ] Add multi-vessel traffic and ship maneuvering constraints
-- [ ] Propagate sensor uncertainty into probabilistic risk estimates
-- [ ] Compare explanation styles and operator override behavior
-- [ ] Design an ethics-approved user study before making human-performance claims
+and the predicted closest separation is
 
-## Technology
+$$
+DCPA=\left\|\mathbf r+\mathbf v\,t_{CPA}\right\|.
+$$
 
-Python · Streamlit · NumPy · Pandas · Plotly
+The implementation handles zero relative speed separately. Distances are shown in **nautical miles** and time in **minutes**. These are constant-velocity geometric estimates; they are not sufficient to establish a safe maneuver.
 
-## Attribution and use
+### What “explainable” means here
 
-This repository is an independent educational research prototype. It is not an official NTNU project or an affiliated maritime navigation product. Add an appropriate license only after deciding how you want others to reuse the code.
+The dashboard displays a **human-readable geometric rationale**: candidate headings are compared by projected closest separation. It does not expose a learned model, estimate calibrated AI confidence, or prove compliance with navigation rules.
+
+## 🧪 Human–AI research ideas
+
+MHATS is a starting point for designing experiments—not evidence that human–AI teaming improves outcomes. Possible research questions include:
+
+| Proposed comparison | Research question | What would be needed |
+|:--|:--|:--|
+| Human Only vs Human + AI | Does advice change response time or course choice? | Controlled participants and timing measures |
+| Explanation vs no explanation | Does rationale affect appropriate reliance? | Multiple explanation conditions |
+| Correct vs deliberately flawed advice | Can operators detect unreliable recommendations? | Validated scenarios and ethical safeguards |
+| Low vs high workload | Does traffic complexity change override behavior? | Multi-target scenarios and workload measures |
+
+The existing CSV records **actions**, not validated trust, workload, cognitive state, or navigation safety outcomes. Any human-subject claims require a suitable study design and, where applicable, ethics approval.
+
+## 📁 Project structure
+
+```text
+maritime-human-ai-teaming-simulator/
+├── app.py                     # Streamlit dashboard and simulation logic
+├── requirements.txt           # Python dependencies
+├── README.md                  # Documentation
+├── .gitignore                 # Excluded local files
+└── assets/
+    └── radar_preview.png      # Illustrative radar image
+```
+
+### Add a real dashboard screenshot
+
+The included radar image is a **generated illustration based on the model geometry**, not a verified capture of the app. After launching Streamlit, take a screenshot and save it as `assets/dashboard.png`. Then add the following Markdown near the top of this README:
+
+```markdown
+![MHATS running dashboard](assets/dashboard.png)
+```
+
+You can also record a short GIF of a complete decision cycle, provided you label it as a synthetic simulation.
+
+## ⚠️ Limitations and roadmap
+
+**Current limitations**
+
+- Only one synthetic target vessel at a time.
+- Point-mass motion; no ship turning dynamics, actuator constraints or hydrodynamics.
+- No validated COLREG rule engine or safety assurance.
+- No real AIS/radar data, geographic charts, wind, waves or sensor fusion.
+- Uncertainty setting is illustrative and not propagated into the estimates.
+- No trained machine-learning model or calibrated prediction confidence.
+- No controlled human-subject experiments or evidence of improved safety.
+
+**Planned extensions**
+
+- [ ] Add automated tests for CPA/TCPA and scenario initialization.
+- [ ] Add multiple vessels and configurable traffic density.
+- [ ] Implement documented COLREG-oriented rules with explicit test cases.
+- [ ] Introduce vessel turning dynamics and maneuver feasibility constraints.
+- [ ] Model observation noise and uncertainty propagation.
+- [ ] Compare explanation styles and operator override patterns.
+- [ ] Design and ethically review a human-participant evaluation protocol.
+- [ ] Publish real application screenshots and a short demonstration video.
+
+## 🧰 Technology stack
+
+**Python** · **Streamlit** · **Plotly** · **NumPy** · **Pandas**
+
+## 📚 Intended use and attribution
+
+MHATS is an **independent educational portfolio and research prototype**, inspired by questions in human-centered maritime autonomy. It is **not an official NTNU project** and is not endorsed by any maritime authority. No license is currently granted by this README; add a `LICENSE` file if you choose to permit reuse.
+
+---
+
+<div align="center">
+
+**MHATS — Keeping the human in the loop.**
+
+*Prototype for studying interfaces, transparency and operator decisions in synthetic maritime encounters.*
+
+</div>
